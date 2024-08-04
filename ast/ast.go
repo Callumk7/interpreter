@@ -25,6 +25,9 @@ type Identifier struct {
 	Value string
 }
 
+func (i *Identifier) expressionNode()      {}
+func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
+
 type LetStatement struct {
 	Token token.Token // the LET token
 	Name  *Identifier
