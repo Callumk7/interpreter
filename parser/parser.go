@@ -14,6 +14,9 @@ type Parser struct {
 	peekToken token.Token
 
 	errors []string
+
+    prefixParseFns map[token.TokenType]prefixParseFn
+    infixParseFns map[token.TokenType]infixPraseFn
 }
 
 func New(l *lexer.Lexer) *Parser {
@@ -25,6 +28,14 @@ func New(l *lexer.Lexer) *Parser {
 
 	return p
 }
+
+func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
+    p.prefixParseFns[tokenType] = fn
+}
+func (p *Parser) registerInfix(tokenType token.TokenType, fn infixPraseFn) {
+    p.infixParseFns[tokenType] = fn
+}
+
 
 // return the errors
 func (p *Parser) Errors() []string {
@@ -55,8 +66,8 @@ func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
 	case token.LET:
 		return p.parseLetStatement()
-    case token.RETURN:
-        return p.parseReturnStatement()
+	case token.RETURN:
+		return p.parseReturnStatement()
 	default:
 		return nil
 	}
@@ -84,16 +95,16 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 }
 
 func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
-    stmt := &ast.ReturnStatement{Token: p.curToken}
+	stmt := &ast.ReturnStatement{Token: p.curToken}
 
-    p.nextToken()
+	p.nextToken()
 
 	// TODO: We are skipping the expressions until we encounter a semicolon
-    if !p.curTokenIs(token.SEMICOLON) {
-        p.nextToken()
-    }
+	if !p.curTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
 
-    return stmt
+	return stmt
 }
 
 func (p *Parser) curTokenIs(t token.TokenType) bool {
@@ -107,8 +118,8 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 		p.nextToken()
 		return true
 	} else {
-        p.peekError(t)
-        return false
+		p.peekError(t)
+		return false
 	}
 }
 func (p *Parser) peekError(t token.TokenType) {
@@ -116,4 +127,9 @@ func (p *Parser) peekError(t token.TokenType) {
 	p.errors = append(p.errors, msg)
 }
 
+// Implementing the Pratt parser
 
+type (
+	prefixParseFn func() ast.Expression
+	infixPraseFn  func(ast.Expression) ast.Expression // the arguement here is the 'left side' of the expression
+)
