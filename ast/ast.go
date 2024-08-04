@@ -7,7 +7,7 @@ import (
 
 type Node interface {
 	TokenLiteral() string // returns the literal string for the token we are dealing with
-	String() string // returns a string representing the token, as if from source code
+	String() string       // returns a string representing the token, as if from source code
 }
 
 type Statement interface {
@@ -20,9 +20,9 @@ type Expression interface {
 	expressionNode()
 }
 
-///
-/// THE PROGRAM NODE 
-///
+// /
+// / THE PROGRAM NODE
+// /
 type Program struct {
 	Statements []Statement
 }
@@ -45,10 +45,9 @@ func (p *Program) String() string {
 	return out.String()
 }
 
-
-///
-/// THE LET STATEMENT NODE
-///
+// /
+// / THE LET STATEMENT NODE
+// /
 type LetStatement struct {
 	Token token.Token // the LET token
 	Name  *Identifier
@@ -74,9 +73,9 @@ func (ls *LetStatement) String() string {
 
 }
 
-///
-/// THE IDENTIFIER NODE 
-///
+// /
+// / THE IDENTIFIER NODE
+// /
 type Identifier struct {
 	Token token.Token // the IDENT token
 	Value string
@@ -85,13 +84,12 @@ type Identifier struct {
 func (i *Identifier) expressionNode()      {}
 func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
 func (i *Identifier) String() string {
-    return i.Value
+	return i.Value
 }
 
-
-///
-/// THE RETURN STATEMENT NODE
-///
+// /
+// / THE RETURN STATEMENT NODE
+// /
 type ReturnStatement struct {
 	Token       token.Token // the RETURN token
 	ReturnValue Expression
@@ -100,21 +98,21 @@ type ReturnStatement struct {
 func (rs *ReturnStatement) statementNode()       {}
 func (rs *ReturnStatement) TokenLiteral() string { return rs.Token.Literal }
 func (rs *ReturnStatement) String() string {
-    var out bytes.Buffer
+	var out bytes.Buffer
 
-    out.WriteString(rs.TokenLiteral() + " ")
-    if rs.ReturnValue != nil {
-        out.WriteString(rs.ReturnValue.String())
-    }
+	out.WriteString(rs.TokenLiteral() + " ")
+	if rs.ReturnValue != nil {
+		out.WriteString(rs.ReturnValue.String())
+	}
 
-    out.WriteString(";")
+	out.WriteString(";")
 
-    return out.String()
+	return out.String()
 }
 
-///
-/// THE EXPRESSION STATEMENT NODE
-///
+// /
+// / THE EXPRESSION STATEMENT NODE
+// /
 type ExpressionStatement struct {
 	Token      token.Token
 	Expression Expression
@@ -122,3 +120,9 @@ type ExpressionStatement struct {
 
 func (es *ExpressionStatement) statementNode()       {}
 func (es *ExpressionStatement) TokenLiteral() string { return es.Token.Literal }
+func (es *ExpressionStatement) String() string {
+    if es.Expression != nil {
+        return es.Expression.String()
+    }
+    return ""
+}
